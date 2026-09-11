@@ -1,0 +1,11 @@
+{
+    "files": [],
+    "references": [
+      { "path": "packages/contracts" },
+      { "path": "packages/shared-ui" },
+      { "path": "packages/event-bus" },
+      { "path": "packages/async-utils" },
+      { "path": "packages/perf-metrics" },
+      { "path": "apps/shell" }
+    ]
+  }
