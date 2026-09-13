@@ -4,7 +4,7 @@ interface EventBusOptions {
   bufferSize?: number;
 }
 
-interface EventBus {
+export interface EventBus {
   emit<K extends EventName>(event: K, payload: EventPayload<K>): void;
   on<K extends EventName>(event: K, handler: (payload: EventPayload<K>) => void): () => void;
   onAny(handler: (event: EventName, payload: unknown) => void): () => void;

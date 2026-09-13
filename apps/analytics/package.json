@@ -1,12 +1,12 @@
 {
-    "name": "@bookhub/catalog",
+    "name": "@bookhub/analytics",
     "version": "0.0.0",
     "private": true,
     "type": "module",
     "scripts": {
       "dev": "vite",
       "build": "tsc --noEmit && vite build",
-      "preview": "vite preview --port 3001 --strictPort",
+      "preview": "vite preview --port 3002 --strictPort",
       "lint": "eslint src"
     },
     "dependencies": {

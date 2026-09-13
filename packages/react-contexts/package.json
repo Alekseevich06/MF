@@ -1,0 +1,23 @@
+{
+    "name": "@bookhub/react-contexts",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "scripts": {
+      "build": "tsc --build",
+      "lint": "eslint src"
+    },
+    "dependencies": {
+        "@bookhub/event-bus": "workspace:*",
+        "@bookhub/preloader": "workspace:*"
+    },
+    "devDependencies": {
+      "@bookhub/eslint-config": "workspace:*",
+      "@types/react": "^18.3.12"
+    },
+    "peerDependencies": {
+        "react": "^18.3.1"
+      }
+  }

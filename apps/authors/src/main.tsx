@@ -1,15 +1,15 @@
-import { BrowserRouter } from 'react-router-dom';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './App';
+import AuthorsMF from './AuthorsMF';
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element not found');
 
 createRoot(rootEl).render(
   <StrictMode>
-  <BrowserRouter>
-    <App />
-    </BrowserRouter>
+    <AuthorsMF
+      locale="ru"
+      onBookClick={(id) => console.log('Selected book:', id)}
+    />
   </StrictMode>
 );

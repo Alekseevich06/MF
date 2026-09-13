@@ -7,6 +7,11 @@
       { "path": "packages/async-utils" },
       { "path": "packages/perf-metrics" },
       { "path": "packages/preloader" },
-      { "path": "apps/shell" }
+      { "path": "packages/react-contexts" },
+      { "path": "apps/shell" },
+      { "path": "apps/catalog" },
+      { "path": "apps/authors" },
+      { "path": "apps/analytics" },
+      
     ]
   }
