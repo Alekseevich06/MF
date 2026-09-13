@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { Locale } from '../domain';
 
 export interface AuthorsMFProps {
@@ -6,7 +7,4 @@ export interface AuthorsMFProps {
     onBookClick: (bookId: string) => void
 }
 
-export interface AuthorsMFHandle {
-    mount(el: HTMLElement, props: AuthorsMFProps): void;
-    unmount(): void;
-}
+export type AuthorsMF = ComponentType<AuthorsMFProps>;

@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { Locale } from '../domain';
 
 export interface CatalogMFProps {
@@ -6,7 +7,4 @@ export interface CatalogMFProps {
   onBookSelect: (bookId: string) => void;
 }
 
-export interface CatalogMFHandle {
-  mount(el: HTMLElement, props: CatalogMFProps): void;
-  unmount(): void;
-}
+export type CatalogMF = ComponentType<CatalogMFProps>;

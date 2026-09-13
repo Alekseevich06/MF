@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type { Locale } from '../domain';
 
 export interface AnalyticsMFProps {
@@ -6,7 +7,4 @@ export interface AnalyticsMFProps {
   onExportRequested: (reportId: string) => void
 }
 
-export interface AnalyticsMFHandle {
-  mount(el: HTMLElement, props: AnalyticsMFProps): void;
-  unmount(): void;
-}
+export type AnalyticsMF = ComponentType<AnalyticsMFProps>;

@@ -10,6 +10,10 @@
     "lint": "eslint src"
   },
   "devDependencies": {
-    "@bookhub/eslint-config": "workspace:*"
+    "@bookhub/eslint-config": "workspace:*",
+    "@types/react": "^18.3.12"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
   }
 }
