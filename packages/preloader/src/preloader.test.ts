@@ -125,4 +125,72 @@ describe('preloader (iteration 1)', () => {
     preloader.clear();
     expect(preloader.getStats().queued).toBe(0);
   });
+  it('dedupes concurrent calls with same key', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    const fetch = vi.fn(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+      return 42;
+    });
+  
+    const [a, b, c] = await Promise.all([
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+    ]);
+  
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(a).toBe(42);
+    expect(b).toBe(42);
+    expect(c).toBe(42);
+    expect(preloader.getStats().dedupHits).toBe(2);
+    expect(preloader.getStats().completed).toBe(1);
+  });
+  
+  it('removes key from inflight after completion', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    const fetch = vi.fn(async () => 42);
+  
+    await preloader.enqueue({ key: 'x', priority: 'high', fetch });
+    await preloader.enqueue({ key: 'x', priority: 'high', fetch });
+  
+    // Второй вызов должен пойти из cache (не из inflight), поэтому fetch всё ещё 1
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(preloader.getStats().cacheHits).toBe(1);
+    expect(preloader.getStats().dedupHits).toBe(0);
+  });
+  
+  it('different keys run separate fetches', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    const fetchA = vi.fn(async () => 'a');
+    const fetchB = vi.fn(async () => 'b');
+  
+    await Promise.all([
+      preloader.enqueue({ key: 'a', priority: 'high', fetch: fetchA }),
+      preloader.enqueue({ key: 'b', priority: 'high', fetch: fetchB }),
+    ]);
+  
+    expect(fetchA).toHaveBeenCalledTimes(1);
+    expect(fetchB).toHaveBeenCalledTimes(1);
+    expect(preloader.getStats().dedupHits).toBe(0);
+  });
+  
+  it('dedupe does not consume extra concurrency slot', async () => {
+    const preloader = createPreloader({ concurrency: 1 });
+    let active = 0;
+    let max = 0;
+    const fetch = async () => {
+      active++; max = Math.max(max, active);
+      await new Promise((r) => setTimeout(r, 20));
+      active--;
+      return 1;
+    };
+  
+    await Promise.all([
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+      preloader.enqueue({ key: 'x', priority: 'high', fetch }),
+    ]);
+  
+    expect(max).toBe(1);
+  });
 });

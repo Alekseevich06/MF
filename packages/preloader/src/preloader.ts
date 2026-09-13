@@ -4,6 +4,7 @@ export function createPreloader(config: PreloaderConfig): Preloader {
     const { concurrency, defaultTtlMs = 30_000 } = config;
   
     const cache = new Map<string, { value: unknown; expiresAt: number }>();
+    const inflightMap = new Map<string, Promise<unknown>>();
     let activeCount = 0;
 
     const queues: Record<Priority, Array<() => void>> = {
@@ -44,38 +45,54 @@ export function createPreloader(config: PreloaderConfig): Preloader {
         }
       }
   
-    async function enqueue<T>(task: PreloadTask<T>): Promise<T> {
-      // 1. Проверить cache
-      const cacheTask = cache.get(task.key)
-      if(cacheTask && cacheTask.expiresAt > Date.now()) {
-        stats.cacheHits++
-        return cacheTask.value as T
+      async function enqueue<T>(task: PreloadTask<T>): Promise<T> {
+        // 1. Кэш
+        const cached = cache.get(task.key);
+        if (cached && cached.expiresAt > Date.now()) {
+          stats.cacheHits++;
+          return cached.value as T;
+        }
+      
+        // 2. Inflight (НОВОЕ)
+        const existing = inflightMap.get(task.key);
+        if (existing) {
+          stats.dedupHits++;
+          return existing as Promise<T>;
+        }
+      
+        // 3. Создаём промис ДО первого await,
+        //    чтобы он попал в inflightMap синхронно.
+        //    Иначе между двумя конкурентными вызовами
+        //    будет окно race condition.
+        const promise = (async () => {
+          await acquireSlot(task.priority);
+          stats.inFlight++;
+          try {
+            const controller = new AbortController();
+            const value = await task.fetch(controller.signal);
+            const ttl = task.ttlMs ?? defaultTtlMs;
+            cache.set(task.key, { value, expiresAt: Date.now() + ttl });
+            return value;
+          } catch (error) {
+            stats.failed++;
+            throw error;
+          } finally {
+            stats.inFlight--;
+            stats.completed++;
+            releaseSlot();
+          }
+        })();
+      
+        // 4. Кладём в inflightMap сразу
+        inflightMap.set(task.key, promise);
+      
+        // 5. Удаляем после завершения
+        promise
+          .finally(() => inflightMap.delete(task.key))
+          .catch(() => {});
+      
+        return promise;
       }
-      // 2. Проверить inflight (пока пропусти, будет в итерации 3)
-      // 3. await acquireSlot()
-      await acquireSlot(task.priority)
-      stats.inFlight++;
-      // 4. activeCount++, stats.inFlight++
-      // 5. try { const value = await task.fetch(...); cache.set(...); return value }
-      //    catch { stats.failed++; throw }
-      //    finally { releaseSlot(); stats.completed++; stats.inFlight-- }
-      try {
-        const controller = new AbortController();
-        const value = await task.fetch(controller.signal)
-
-        const ttl = task.ttlMs ?? defaultTtlMs;
-        cache.set(task.key, { value, expiresAt: Date.now() + ttl });
-
-    return value;
-      } catch (error) {
-        stats.failed++; 
-        throw error
-      } finally {
-        releaseSlot(); 
-        stats.completed++; 
-        stats.inFlight-- 
-      }
-    }
   
     return {
       enqueue,
