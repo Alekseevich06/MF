@@ -83,6 +83,19 @@ importers:
         specifier: ^2.1.9
         version: 2.1.9
 
+  packages/preloader:
+    dependencies:
+      '@bookhub/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      '@bookhub/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9
+
   packages/prettier-config: {}
 
   packages/shared-ui:

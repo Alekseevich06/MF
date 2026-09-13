@@ -6,6 +6,7 @@
       { "path": "packages/event-bus" },
       { "path": "packages/async-utils" },
       { "path": "packages/perf-metrics" },
+      { "path": "packages/preloader" },
       { "path": "apps/shell" }
     ]
   }
