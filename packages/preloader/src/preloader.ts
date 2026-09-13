@@ -1,11 +1,16 @@
-import type { PreloadTask, Preloader, PreloaderConfig, PreloaderStats } from "./preloader.type";
+import type { PreloadTask, Preloader, PreloaderConfig, PreloaderStats, Priority } from "./preloader.type";
 
 export function createPreloader(config: PreloaderConfig): Preloader {
     const { concurrency, defaultTtlMs = 30_000 } = config;
   
     const cache = new Map<string, { value: unknown; expiresAt: number }>();
-    const queue: Array<() => void> = [];   // функции, которые ждут слота
     let activeCount = 0;
+
+    const queues: Record<Priority, Array<() => void>> = {
+        critical: [],
+        high: [],
+        low: [],
+      };
   
     const stats: PreloaderStats = {
       inFlight: 0,
@@ -16,22 +21,25 @@ export function createPreloader(config: PreloaderConfig): Preloader {
       failed: 0,
     };
   
-    async function acquireSlot(): Promise<void> {
+    async function acquireSlot(priority: Priority): Promise<void> {
         if (activeCount < concurrency) {
           activeCount++;
           return;
         }
         stats.queued++;
-        await new Promise<void>((resolve) => queue.push(resolve));
+        await new Promise<void>((resolve) => queues[priority].push(resolve));
         stats.queued--;
       }
-    function releaseSlot(): void {
-        const next = queue.shift();
+
+      function releaseSlot(): void {
+        const next =
+          queues.critical.shift() ??
+          queues.high.shift() ??
+          queues.low.shift();
+      
         if (next) {
-          // Передаём слот ожидающему — activeCount не меняется
           next();
         } else {
-          // Очередь пуста — освобождаем слот
           activeCount--;
         }
       }
@@ -45,7 +53,7 @@ export function createPreloader(config: PreloaderConfig): Preloader {
       }
       // 2. Проверить inflight (пока пропусти, будет в итерации 3)
       // 3. await acquireSlot()
-      await acquireSlot()
+      await acquireSlot(task.priority)
       stats.inFlight++;
       // 4. activeCount++, stats.inFlight++
       // 5. try { const value = await task.fetch(...); cache.set(...); return value }
@@ -75,13 +83,16 @@ export function createPreloader(config: PreloaderConfig): Preloader {
       getStats: () => ({ ...stats }),
       clear: () => {
         cache.clear();
-        queue.length = 0;
+     
         stats.inFlight = 0;
         stats.queued = 0;
         stats.cacheHits = 0;
         stats.dedupHits = 0;
         stats.completed = 0;
         stats.failed = 0;
+        queues.critical.length = 0;
+queues.high.length = 0;
+queues.low.length = 0;
       },
     };
   }

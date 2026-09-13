@@ -60,4 +60,69 @@ describe('preloader (iteration 1)', () => {
     expect(s.inFlight).toBe(0);
     expect(s.queued).toBe(0);
   });
+  it('critical tasks run before low tasks (when queued)', async () => {
+    const preloader = createPreloader({ concurrency: 1 });
+    const order: string[] = [];
+  
+    // Занимаем единственный слот долгой задачей
+    const blocker = preloader.enqueue({
+      key: 'blocker',
+      priority: 'high',
+      fetch: async () => {
+        await new Promise((r) => setTimeout(r, 50));
+        order.push('blocker');
+        return 'blocker';
+      },
+    });
+  
+    // Ставим в очередь low, потом critical
+    const low = preloader.enqueue({
+      key: 'low',
+      priority: 'low',
+      fetch: async () => { order.push('low'); return 'low'; },
+    });
+    const critical = preloader.enqueue({
+      key: 'critical',
+      priority: 'critical',
+      fetch: async () => { order.push('critical'); return 'critical'; },
+    });
+  
+    await Promise.all([blocker, low, critical]);
+  
+    // Ожидаем: blocker (уже стартовал), потом critical (обогнал low), потом low
+    expect(order).toEqual(['blocker', 'critical', 'low']);
+  });
+  
+  it('high priority between critical and low', async () => {
+    const preloader = createPreloader({ concurrency: 1 });
+    const order: string[] = [];
+  
+    const blocker = preloader.enqueue({
+      key: 'b', priority: 'high',
+      fetch: async () => { await new Promise((r) => setTimeout(r, 50)); return 'b'; },
+    });
+  
+    const low = preloader.enqueue({ key: 'l', priority: 'low', fetch: async () => { order.push('low'); return 'l'; } });
+    const high = preloader.enqueue({ key: 'h', priority: 'high', fetch: async () => { order.push('high'); return 'h'; } });
+    const critical = preloader.enqueue({ key: 'c', priority: 'critical', fetch: async () => { order.push('critical'); return 'c'; } });
+  
+    await Promise.all([blocker, low, high, critical]);
+  
+    expect(order).toEqual(['critical', 'high', 'low']);
+  });
+  
+  it('clear empties all three queues', async () => {
+    const preloader = createPreloader({ concurrency: 1 });
+  
+    // Занимаем слот
+    preloader.enqueue({ key: 'b', priority: 'high', fetch: () => new Promise(() => {}) });
+  
+    preloader.enqueue({ key: 'c1', priority: 'critical', fetch: async () => 1 });
+    preloader.enqueue({ key: 'h1', priority: 'high', fetch: async () => 2 });
+    preloader.enqueue({ key: 'l1', priority: 'low', fetch: async () => 3 });
+  
+    expect(preloader.getStats().queued).toBe(3);
+    preloader.clear();
+    expect(preloader.getStats().queued).toBe(0);
+  });
 });
