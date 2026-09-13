@@ -32,6 +32,9 @@ importers:
       '@bookhub/preloader':
         specifier: workspace:*
         version: link:../../packages/preloader
+      '@bookhub/react-contexts':
+        specifier: workspace:*
+        version: link:../../packages/react-contexts
       '@bookhub/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -75,6 +78,9 @@ importers:
       '@bookhub/preloader':
         specifier: workspace:*
         version: link:../../packages/preloader
+      '@bookhub/react-contexts':
+        specifier: workspace:*
+        version: link:../../packages/react-contexts
       '@bookhub/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -118,6 +124,9 @@ importers:
       '@bookhub/preloader':
         specifier: workspace:*
         version: link:../../packages/preloader
+      '@bookhub/react-contexts':
+        specifier: workspace:*
+        version: link:../../packages/react-contexts
       '@bookhub/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
@@ -152,6 +161,9 @@ importers:
 
   apps/shell:
     dependencies:
+      '@bookhub/react-contexts':
+        specifier: workspace:*
+        version: link:../../packages/react-contexts
       '@bookhub/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui

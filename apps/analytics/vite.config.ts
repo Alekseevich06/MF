@@ -14,13 +14,14 @@ export default defineConfig({
       shared: {
         react: { singleton: true },
         'react-dom': { singleton: true },
+        '@bookhub/react-contexts': { singleton: true },
       },
     }),
   ],
   server: {
     port: 3003,
     strictPort: true,
-    origin: 'http://localhost:3002',
+    origin: 'http://localhost:3003',
   },
   preview: {
     port: 3003,

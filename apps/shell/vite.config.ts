@@ -33,6 +33,7 @@ export default defineConfig({
       shared: {
         react: { singleton: true },
         'react-dom': { singleton: true },
+        '@bookhub/react-contexts': { singleton: true },
       },
     }),
   ],
