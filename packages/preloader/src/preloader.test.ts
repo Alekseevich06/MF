@@ -193,4 +193,66 @@ describe('preloader (iteration 1)', () => {
   
     expect(max).toBe(1);
   });
+  it('abort cancels in-flight request', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    let receivedSignal: AbortSignal | null = null;
+  
+    const fetch = (signal: AbortSignal) => {
+      receivedSignal = signal;
+      return new Promise((_, reject) => {
+        signal.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'));
+        });
+      });
+    };
+  
+    const p = preloader.enqueue({ key: 'x', priority: 'high', fetch });
+    // Даём время на регистрацию signal
+    await new Promise((r) => setTimeout(r, 0));
+  
+    preloader.abort('x');
+  
+    await expect(p).rejects.toThrow(/abort/i);
+    expect(preloader.getStats().aborted).toBe(1);
+    expect(preloader.getStats().failed).toBe(0);
+  });
+  
+  it('abort on unknown key is no-op', () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    expect(() => preloader.abort('nonexistent')).not.toThrow();
+  });
+  
+  it('abort removes controller from map', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    const fetch = (signal: AbortSignal) =>
+      new Promise<number>((_, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+      });
+  
+    const p = preloader.enqueue({ key: 'x', priority: 'high', fetch });
+    await new Promise((r) => setTimeout(r, 0));
+    preloader.abort('x');
+    await expect(p).rejects.toThrow();
+  
+    // Повторный abort — no-op
+    expect(() => preloader.abort('x')).not.toThrow();
+  });
+  
+  it('aborted request does not go into cache', async () => {
+    const preloader = createPreloader({ concurrency: 4 });
+    const fetch = (signal: AbortSignal) =>
+      new Promise<number>((_, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+      });
+  
+    const p = preloader.enqueue({ key: 'x', priority: 'high', fetch });
+    await new Promise((r) => setTimeout(r, 0));
+    preloader.abort('x');
+    await expect(p).rejects.toThrow();
+  
+    // Новый вызов должен снова пойти в fetch
+    const goodFetch = vi.fn(async () => 42);
+    await preloader.enqueue({ key: 'x', priority: 'high', fetch: goodFetch });
+    expect(goodFetch).toHaveBeenCalledTimes(1);
+  });
 });

@@ -18,7 +18,8 @@ export interface PreloaderStats {
   cacheHits: number;                  // отдано из кэша
   dedupHits: number;                  // присоединились к чужому запросу
   completed: number;                  // успешно завершено
-  failed: number;                     // упало
+  failed: number;  
+  aborted: number;                   
 }
 
 export interface Preloader {
