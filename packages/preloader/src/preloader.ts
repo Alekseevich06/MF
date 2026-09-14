@@ -1,6 +1,6 @@
 import type { PreloadTask, Preloader, PreloaderConfig, PreloaderStats, Priority } from "./preloader.type";
 
-function isAbortError(err: unknown): boolean {
+export function isAbortError(err: unknown): boolean {
     return err instanceof DOMException && err.name === 'AbortError';
   }
 

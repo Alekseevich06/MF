@@ -1,0 +1,10 @@
+{
+  "latestErrorEvent": {
+    "code": "TYPE-001",
+    "message": "Failed to generate type declaration. Execute the below cmd to reproduce and fix the error. #TYPE-001\nargs: {\"cmd\":\"/Users/roman/.nvm/versions/node/v24.11.0/bin/node /Users/roman/Desktop/bookhub/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /Users/roman/Desktop/bookhub/apps/catalog/node_modules/.federation/tsconfig.35902c8351d786b3b196e313b58ae0bd.json\"}\nView the docs to see how to solve: https://module-federation.io/guide/troubleshooting/type#type-001",
+    "args": {
+      "cmd": "/Users/roman/.nvm/versions/node/v24.11.0/bin/node /Users/roman/Desktop/bookhub/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/bin/tsc --project /Users/roman/Desktop/bookhub/apps/catalog/node_modules/.federation/tsconfig.35902c8351d786b3b196e313b58ae0bd.json"
+    },
+    "timestamp": 1789390675065
+  }
+}

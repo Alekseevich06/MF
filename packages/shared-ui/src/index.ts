@@ -1,3 +1,3 @@
-export function hello() {
-    return 'hello from shared-ui';
-  }
+
+
+  export { Checkbox } from './Checkbox/Checkbox';

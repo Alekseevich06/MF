@@ -115,6 +115,9 @@ importers:
 
   apps/catalog:
     dependencies:
+      '@bookhub/async-utils':
+        specifier: workspace:*
+        version: link:../../packages/async-utils
       '@bookhub/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
