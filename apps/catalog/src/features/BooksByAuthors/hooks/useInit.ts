@@ -10,14 +10,14 @@ type Status = 'idle' | 'loading' | 'success' | 'error'
 
 export const useInit = () => {
     const [selectedAuthorIds, setSelectedAuthorIds] = useState<Set<string>>(new Set());;
-    const [books, setBooks] = useState<Book[]>([]);
+    const [booksByAuthor, setBooksByAuthor] = useState<Map<string, Book[]>>(new Map());
     const [status, setStatus] = useState<Status>('idle');
     const [error, setError] = useState<Error | null>(null);
   
     useEffect(() => {
         if (selectedAuthorIds.size === 0) {
           setStatus('idle');
-          setBooks([]);
+          setBooksByAuthor(new Map());
           return;
         }
     
@@ -41,7 +41,7 @@ export const useInit = () => {
           
 
           if(meta.totalPages === 1) {
-            setBooks(data);
+            groupBooksByAuthor(data);
             setStatus('success');
             return
           }
@@ -60,7 +60,7 @@ export const useInit = () => {
             ...restPages.flatMap((p) => p.data),
           ];
 
-            setBooks(allBooks);
+        groupBooksByAuthor(allBooks);
             setStatus('success');
           
         } catch (err) {
@@ -83,10 +83,28 @@ export const useInit = () => {
         })
       }
 
+      function groupBooksByAuthor(books: Book[]) {
+        const map = new Map<string, Book[]>();
+        const seenIds = new Set<string>();
+      
+        for (const book of books) {
+          if (seenIds.has(book.id)) continue;   // дедупликация
+          seenIds.add(book.id);
+      
+          const list = map.get(book.authorId);
+          if (list) {
+            list.push(book);                     // добавляем к существующему массиву
+          } else {
+            map.set(book.authorId, [book]);      // создаём новый массив
+          }
+        }
+      
+        setBooksByAuthor(map);
+      }
 
     return {
         selectedAuthorIds,
-        books,
+        booksByAuthor,
         status,
         error,
         selectedAuthor

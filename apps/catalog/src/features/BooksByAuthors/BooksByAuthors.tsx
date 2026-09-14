@@ -11,8 +11,7 @@ interface IBooksByAuthorsProps {
 
 export function BooksByAuthors({ locale, onBookClick }: IBooksByAuthorsProps) {
 
-    const {books, selectedAuthorIds, selectedAuthor, status} = useInit()
-  console.log(books);
+    const {booksByAuthor, selectedAuthorIds, selectedAuthor, status} = useInit()
   
    
     return (
@@ -28,12 +27,21 @@ export function BooksByAuthors({ locale, onBookClick }: IBooksByAuthorsProps) {
         
         {/* BooksView: зависит от status */}
         <div style={{display: 'flex', flexWrap: 'wrap', gap: '20px'}}>
-        {books && books.map(el => 
-            <div key={el.id}>
-                {el.title}
-            </div>
-
-        )}
+        {[...booksByAuthor.entries()].map(([authorId, authorBooks]) => {
+      const author = AUTHORS.find((a) => a.id === authorId);
+      return (
+        <div key={authorId}>
+          <h3>{author?.name ?? authorId} ({authorBooks.length} книг)</h3>
+          <div>
+            {authorBooks?.map((book) => (
+              <div key={book.id} onClick={() => onBookClick(book.id)}>
+                {book.title}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    })}
         {status === 'loading' && <div>Загрузка</div>}
         {status === 'error' && <div>Ошибка</div>}
         {status === 'idle' && <div>Выберите автора/ов</div>}
