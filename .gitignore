@@ -10,3 +10,14 @@ coverage/
 .DS_Store
 *.tsbuildinfo
 @mf-types/
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+@mf-types/
+coverage/
+*.log
+.env
+.env.local
+.DS_Store
+deploy/

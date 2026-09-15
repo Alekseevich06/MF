@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify environment
+        run: |
+          node --version
+          pnpm --version
+          echo "Runner on: $(uname -m)"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm turbo build --filter='./packages/*'
+
+      - name: Build MF (with version)
+        run: bash scripts/build-mf.sh
+        env:
+          MF_BUILD_VERSION: ${{ github.sha }}
+
+      - name: Build shell
+        run: pnpm --filter @bookhub/shell build
+
+      - name: Run tests
+        run: pnpm turbo test --filter='./packages/*'
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: |
+            apps/shell/dist/
+            apps/catalog/dist/
+            apps/authors/dist/
+            apps/analytics/dist/
+          retention-days: 7
