@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     federation({
       name: 'catalog',
+      manifest: true,
       filename: 'remoteEntry.js',
       exposes: {
         './CatalogMF': './src/CatalogMF.tsx',
@@ -15,6 +16,7 @@ export default defineConfig({
         react: { singleton: true },
         'react-dom': { singleton: true },
         '@bookhub/react-contexts': { singleton: true },
+        '@bookhub/shared-ui': { singleton: true },
       },
     }),
   ],

@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 
 interface CheckboxProps {
     checked: boolean;
     onChange: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
   }
   
   export function Checkbox({ checked, onChange, children }: CheckboxProps) {

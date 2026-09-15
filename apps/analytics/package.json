@@ -15,6 +15,7 @@
       "@bookhub/preloader": "workspace:*",
       "@bookhub/shared-ui": "workspace:*",
       "@bookhub/react-contexts": "workspace:*",
+      "@bookhub/async-utils": "workspace:*",
       "react": "^18.3.1",
       "react-dom": "^18.3.1",
       "react-router-dom": "^6.28.0"

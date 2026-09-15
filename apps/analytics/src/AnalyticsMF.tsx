@@ -1,10 +1,11 @@
 import type { AnalyticsMFProps } from '@bookhub/contracts';
+import { Dashboard } from './features/Dashboard/Dashboard';
 
 export default function AnalyticsMF({ locale }: AnalyticsMFProps) {
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Analytics MF</h1>
-      <p>Locale: {locale}</p>
+    <div>
+      <h1>Analytics ({locale})</h1>
+      <Dashboard />
     </div>
   );
 }

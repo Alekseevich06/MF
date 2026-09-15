@@ -1,0 +1,48 @@
+.dashboard {
+    padding: 16px;
+    font-family: system-ui, sans-serif;
+  }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  
+  .widget {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+    min-height: 80px;
+  }
+  
+  .widget h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .widget-loading {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .widget-error {
+    color: #c33;
+  }
+  
+  .stats-panel {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  
+  .stats-panel span {
+    margin-right: 16px;
+  }
